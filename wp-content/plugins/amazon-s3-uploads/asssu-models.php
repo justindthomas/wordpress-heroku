@@ -11,12 +11,14 @@ class AsssuConfig {
 		$secret_key, 	// string
 		$bucket_name, 	// string
 		$bucket_subdir, // string
+		$exclude,		// string - file extensions comma separated
 		$use_ssl, 		// boolean
 		$cron_interval, // integer
 		$cron_limit, 	// integer
 		$mode; 			// string - hidden_forced, optional, normal
 
 	public
+		$excludes = array(),
 		$upload_basedir,
 		$upload_baseurl,
 		$db_prefix,
@@ -32,10 +34,17 @@ class AsssuConfig {
 		$this->secret_key = $options['secret_key'];
 		$this->bucket_name = $options['bucket_name'];
 		$this->bucket_subdir = $options['bucket_subdir'];
+		$this->exclude = $options['exclude'];
 		$this->use_ssl = $options['use_ssl'];
 		$this->cron_interval = $options['cron_interval'];
 		$this->cron_limit = $options['cron_limit'];
 		$this->mode = $options['mode'];
+		
+		foreach (preg_split('/[\s,]+/', $this->exclude) as $e)
+			if (!empty($e))
+				$this->excludes[] = '/(.*)'.$e.'$/';
+		if (!in_array('/.htaccess/', $this->excludes))
+			$this->excludes[] = '/.htaccess/';
 
 		self::$collection[$this->site_url] = $this;
 	}
@@ -82,8 +91,13 @@ class AsssuCron {
 			$status = 'error';
 			$local_path = $c->upload_basedir.$file;
 			$amazon_path = trim($file, '/');
+		    if (strpos($amazon_path, '+') !== false) {
+		    	$this->plugin->special_rewrite_db($amazon_path);
+		    	$amazon_path = str_replace('+', '-', $amazon_path);
+		    }
 			if (!empty($c->bucket_subdir))
 			    $amazon_path = $c->bucket_subdir.'/'.$amazon_path;
+		    	
 			$info = @$adapter->getObjectInfo($c->bucket_name, $amazon_path, true);
 			if (!empty($info)) {
 				if ($info['size'] !== filesize($local_path)) {
@@ -123,8 +137,17 @@ class AsssuCron {
 	        $amazon_path .= $c->bucket_subdir.'/';
 	        $amazon_path_ssl .= $c->bucket_subdir.'/';
         }
+        $asw_path = plugins_url( 'asssu-special-rewrite.php' , __FILE__ );
+        if ($_SERVER['HTTP_HOST'] === 'localhost')
+        	$asw_path = str_replace('home/a/lib/amazon-s3-uploads/trunk', 'amazon-s3-uploads', $asw_path);
+        $asw_path = substr($asw_path, strpos($asw_path, $_SERVER['HTTP_HOST']) + strlen($_SERVER['HTTP_HOST']));
+
 	    $htaccess_file = $c->upload_basedir.DIRECTORY_SEPARATOR.'.htaccess';
 	    $htaccess_contents = 'RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} (.+)\+(.+)
+RewriteRule ^(.*)$ '.$asw_path.' [L]
 RewriteCond %{HTTPS} off
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
@@ -145,11 +168,17 @@ RewriteRule ^(.*)$ '.$amazon_path_ssl.'$1 [QSA,L]';
 	    $dir_path = $path.$dir;
 	    if ($handle = opendir($dir_path)) {
             while (false !== ($entry = readdir($handle)) && $limit > 0) {
-                if (!in_array($entry, array('.', '..', '.htaccess'))) {
+                if (!in_array($entry, array('.', '..'))) {
                     $entry_path = $dir_path.'/'.$entry;
                     if (is_file($entry_path)) {
-                    	$out[] = $dir.'/'.$entry;
-                    	$limit--;
+	            		$exclude = false;
+	                	foreach ($this->plugin->config->excludes as $e)
+	                		if (preg_match($e, $entry))
+	            				$exclude = true;
+	    				if (!$exclude) {
+	                    	$out[] = $dir.'/'.$entry;
+	                    	$limit--;
+	                    }
                     } else {
                     	list($limit, $files) = $this->find_files($path, $limit, $dir.'/'.$entry);
                         $out = array_merge($out, $files);
@@ -178,6 +207,7 @@ class AsssuPlugin {
 			ob_start();
 			
 		if ($this->enabled) {
+			add_action('delete_attachment', array(&$this, 'delete_attachment'));
 			add_filter('cron_schedules', array(&$this, 'cron_schedules'));
 		    $prefix = $this->config->db_prefix;
 			if (!wp_next_scheduled($prefix.'asssu_cron_hook'))
@@ -214,6 +244,7 @@ class AsssuPlugin {
 				'secret_key' => get_option('asssu_secret_key'),
 				'bucket_name' => get_option('asssu_bucket_name'),
 				'bucket_subdir' => get_option('asssu_bucket_subdir'),
+				'exclude' => get_option('asssu_exclude'),
 				'use_ssl' => (bool) get_option('asssu_use_ssl', 0),
 				'cron_interval' => get_option('asssu_cron_interval', 300),
 				'cron_limit' => get_option('asssu_cron_limit', 20),
@@ -232,21 +263,21 @@ class AsssuPlugin {
 		$config->use_predefined = (bool) get_option('asssu_use_predefined', 1);
 		$this->config = $config;
 		$this->config->endpoint = $this->get_endpoint();
+		
 		if (empty($this->config->endpoint)) {
-		    $error_log = 'endpoint could not be found'."\n";
+		    $error_log = array('endpoint could not be found');
 		    require_once dirname(__FILE__).DIRECTORY_SEPARATOR.'tpyo-amazon-s3-php-class'.DIRECTORY_SEPARATOR.'S3.php';
 		    $adapter = new S3($config->access_key, $config->secret_key, $config->use_ssl);
 		    if (empty($adapter))
-		        $error_log .= 'could not connect to S3'."\n";
+		        $error_log[] = 'could not connect to S3';
 		    $buckets = $adapter->listBuckets();
 		    if (empty($buckets))
-		        $error_log .= 'no buckets found'."\n";
+		        $error_log[] = 'no buckets found';
 	        if (!in_array($config->bucket_name, $buckets))
-		        $error_log .= 'selected bucket not found'."\n";
+		        $error_log[] = 'selected bucket not found';
 	        $location = $adapter->getBucketLocation($config->bucket_name);
-		    $error_log .= 'bucket location '.$location."\n";
-		    if (file_put_contents(dirname(__FILE__).'/asssu-errorlog.txt', $error_log) !== true)
-		        error_log($error_log);
+		    $error_log[] = 'bucket location '.$location;
+		    $this->error_log($error_log);
 		}
     }
 
@@ -270,6 +301,7 @@ class AsssuPlugin {
 				update_option('asssu_secret_key', $_POST['secret_key']);
 				update_option('asssu_bucket_name', $_POST['bucket_name']);
 				update_option('asssu_bucket_subdir', trim($_POST['bucket_subdir'], '/'));
+				update_option('asssu_exclude', $_POST['exclude']);
 				update_option('asssu_use_ssl', isset($_POST['use_ssl']) ? 1 : 0);
 				update_option('asssu_cron_interval', $_POST['cron_interval']);
 				update_option('asssu_cron_limit', $_POST['cron_limit']);
@@ -337,6 +369,96 @@ class AsssuPlugin {
 		}
 		return null;
 	}
+
+	public function delete_attachment($post_id) {
+		$c = $this->config;
+		$files = array();
+		
+		$query = 'SELECT * FROM '.$c->db_prefix.'postmeta WHERE post_id  = "'.$post_id.'"';
+		$results = $this->db->get_results($query, ARRAY_A);
+		foreach ($results as $result) {
+			// finding all file sizes
+			if ($result['meta_key'] === '_wp_attachment_metadata') {
+				$meta_value = unserialize($result['meta_value']);
+				$files[] = $meta_value['file'];
+				$dir = substr($meta_value['file'], 0, strrpos($meta_value['file'], '/') + 1);
+				foreach ($meta_value['sizes'] as $size)
+					$files[] = $dir.$size['file'];
+			}
+		}
+		
+	    require_once dirname(__FILE__).DIRECTORY_SEPARATOR.'tpyo-amazon-s3-php-class'.DIRECTORY_SEPARATOR.'S3.php';
+		$adapter = $this->cron->sss_adapter();
+		foreach (array_unique($files) as $amazon_path) {
+			if (!empty($c->bucket_subdir))
+			    $amazon_path = $c->bucket_subdir.'/'.$amazon_path;
+			$info = $adapter->getObjectInfo($c->bucket_name, $amazon_path, true);
+			if (!empty($info))
+				$delete = $adapter->deleteObject($c->bucket_name, $amazon_path);
+		}
+	}
+	
+	function special_rewrite_db($file) {
+		$c = $this->config;
+		$files = array();
+		
+		// db search
+		$new_file = $file;
+		$new_file = substr($new_file, strrpos($new_file, '/') + 1); // removing directories
+		$new_file = preg_replace('/-(\d+)x(\d+)./', '.', $new_file); // removing thumbnail size
+		$new_file = substr($new_file, 0, strrpos($new_file, '.')); // removing extension
+		$query = 'SELECT * FROM '.$c->db_prefix.'postmeta WHERE meta_value like \'%'.$new_file.'%\'';
+		$results = $this->db->get_results($query, ARRAY_A);
+		foreach ($results as $result) {
+			// finding all file sizes
+			if ($result['meta_key'] === '_wp_attachment_metadata') {
+				$meta_value = unserialize($result['meta_value']);
+				$files[] = $meta_value['file'];
+				$dir = substr($meta_value['file'], 0, strrpos($meta_value['file'], '/') + 1);
+				foreach ($meta_value['sizes'] as $size)
+					$files[] = $dir.$size['file'];
+			}
+			// updating db, replacing + with - in filename
+			$result['meta_value'] = str_replace($new_file, str_replace('+', '-', $new_file), $result['meta_value']);
+			$query = 'UPDATE '.$c->db_prefix.'postmeta SET meta_value = "'.addslashes($result['meta_value']).'" WHERE meta_id = "'.$result['meta_id'].'"';
+			$this->db->query($query);
+		}
+		return $files;
+	}
+	
+	function special_rewrite($request_file) {
+		$c = $this->config;
+		
+		// db search
+		$files = $this->special_rewrite_db($request_file);
+		
+		// amazon s3 search
+	    require_once dirname(__FILE__).DIRECTORY_SEPARATOR.'tpyo-amazon-s3-php-class'.DIRECTORY_SEPARATOR.'S3.php';
+		$adapter = $this->cron->sss_adapter();
+		foreach (array_unique($files) as $amazon_path) {
+			if (!empty($c->bucket_subdir))
+			    $amazon_path = $c->bucket_subdir.'/'.$amazon_path;
+			    
+			$info = $adapter->getObjectInfo($c->bucket_name, $amazon_path, true);
+			if (!empty($info)) {
+				// updating amazon s3, replacing + with - in filename
+				$new_amazon_path = str_replace('+', '-', $amazon_path);
+				$check = $adapter->getObjectInfo($c->bucket_name, $new_amazon_path, true);
+				if (!empty($check))
+					$delete = $adapter->deleteObject($c->bucket_name, $new_amazon_path);
+				$copy = $adapter->copyObject($c->bucket_name, $amazon_path, $c->bucket_name, $new_amazon_path, S3::ACL_PUBLIC_READ);
+				$delete = $adapter->deleteObject($c->bucket_name, $amazon_path);
+				if (!$copy)
+					$this->error_log('unable to copy '.$amazon_path.' to '.$new_amazon_path);
+				if (!$delete)
+					$this->error_log('unable to delete '.$amazon_path);
+			} else {
+				$this->error_log('unable to get info for '.$amazon_path);
+			}
+		}
+		header('Location: '.str_replace('+', '-', $request_file));
+		exit();
+	}
 	
 	function check_db_table() {
 		$columns = @$this->db->get_results('SHOW COLUMNS FROM `'.$this->config->db_table.'`', ARRAY_A);
@@ -378,5 +500,17 @@ class AsssuPlugin {
 			    array(&$this, 'options')
 			);
 		}
+	}
+	
+	function error_log($message) {
+		if (is_string($message))
+			$message = array($message);
+		$error_log = '';
+		$error_log_file = dirname(__FILE__).'/asssu-errorlog.txt';
+		if (is_file($error_log_file))
+			$error_log = file_get_contents($error_log_file);
+		$error_log .= implode("\n", $message);
+	    if (file_put_contents($error_log_file, $error_log) !== true)
+	        error_log(implode("\n", $message));
 	}
 }

@@ -59,6 +59,13 @@
 				</td>
 			</tr>
 			<tr valign="top">
+				<th scope="row"><label for="exclude"><?php _e('Exclude File Extensions'); ?></label></th>
+				<td>
+					<input name="exclude" type="text" id="exclude" value="<?=$c->exclude?>" class="regular-text" />
+					<span class="description"><?php _e('If you want to exclude some filetypes from being uploaded to Amazon S3, like \'.js, .php, .doc, .mkv\'.'); ?></span>
+				</td>
+			</tr>
+			<tr valign="top">
 				<th scope="row"><?php _e('Use SSL'); ?></th>
 				<td>
 					<fieldset>
@@ -106,11 +113,18 @@
 			<input type="submit" name="Submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" />
 		</p>
 	</form>
-	<p>If you find this plugin usefull please</p>
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="7T88Q3EHGD9RS">
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-</form>
+	<span class="description">If you find this plugin usefull, please <a href="#" onclick="jQuery('#asssu-donate').show();">donate</a>.</span>
+	<div id="asssu-donate" style="display:none;">
+		<span class="description">
+		No minimum donation amount, it's totally up to you.<br />
+		If you prefer to send me a handicraft, then <a href="mailto:atvdev@gmail.com">ask for my address</a>.<br />
+		Cheers & beers!
+		</span>
+		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+		<input type="hidden" name="cmd" value="_s-xclick">
+		<input type="hidden" name="hosted_button_id" value="7T88Q3EHGD9RS">
+		<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+		<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+		</form>
+	</div>
 </div>
