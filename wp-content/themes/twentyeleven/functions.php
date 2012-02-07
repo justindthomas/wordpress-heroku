@@ -153,7 +153,19 @@ function twentyeleven_setup() {
 			'thumbnail_url' => '%s/images/headers/leaves-thumbnail.jpg',
 			/* translators: header image description */
 			'description' => __( 'Leaves', 'twentyeleven' )
-		)
+		),
+		'flowers_1' => array(
+                        'url' => '%s/images/headers/flowers_1.jpg',
+                        'thumbnail_url' => '%s/images/headers/flowers_1-thumbnail.jpg',
+                        /* translators: header image description */
+                        'description' => __( 'Flowers 1', 'twentyeleven' )
+                ),
+		'flowers_2' => array(
+                        'url' => '%s/images/headers/flowers_2.jpg',
+                        'thumbnail_url' => '%s/images/headers/flowers_2-thumbnail.jpg',
+                        /* translators: header image description */
+                        'description' => __( 'Flowers 2', 'twentyeleven' )
+                )
 	) );
 }
 endif; // twentyeleven_setup
