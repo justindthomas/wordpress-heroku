@@ -143,6 +143,19 @@ if (!class_exists('WPAL2Int')) {
 			return $access_token;
 		}
 
+		static function Get_fb_application_cached($user_ID) {
+			$app_key = c_al2fb_transient_cache . md5('app' . $user_ID);
+			$app = get_transient($app_key);
+			if (get_option(c_al2fb_option_debug))
+				$app = false;
+			if ($app === false) {
+				$app = WPAL2Int::Get_fb_application($user_ID);
+				$duration = WPAL2Int::Get_duration(false);
+				set_transient($app_key, $app, $duration);
+			}
+			return $app;
+		}
+
 		// Get application properties
 		static function Get_fb_application($user_ID) {
 			$app_id = get_user_meta($user_ID, c_al2fb_meta_client_id, true);
@@ -161,6 +174,8 @@ if (!class_exists('WPAL2Int')) {
 			$page_id = WPAL2Int::Get_page_id($user_ID, $self);
 			$me_key = c_al2fb_transient_cache . md5('me' . $user_ID . $page_id);
 			$me = get_transient($me_key);
+			if (get_option(c_al2fb_option_debug))
+				$me = false;
 			if ($me === false) {
 				$me = WPAL2Int::Get_fb_me($user_ID, $self);
 				if ($me != null) {
@@ -174,6 +189,10 @@ if (!class_exists('WPAL2Int')) {
 		// Get wall, page or group name
 		static function Get_fb_me($user_ID, $self) {
 			$page_id = WPAL2Int::Get_page_id($user_ID, $self);
+			return WPAL2Int::Get_fb_info($user_ID, $page_id);
+		}
+
+		static function Get_fb_info($user_ID, $page_id) {
 			$url = 'https://graph.facebook.com/' . $page_id;
 			$url = apply_filters('al2fb_url', $url);
 			$token = WPAL2Int::Get_access_token_by_page($user_ID, $page_id);
@@ -183,12 +202,30 @@ if (!class_exists('WPAL2Int')) {
 			$response = WPAL2Int::Request($url, $query, 'GET');
 			$me = json_decode($response);
 			if ($me) {
-				if (empty($me->link))	// Group
+				if (empty($me->category))	// Group
 					$me->link = 'http://www.facebook.com/home.php?sk=group_' . $page_id;
 				return $me;
 			}
 			else
 				throw new Exception('Page "' . $page_id . '" not found');
+		}
+
+		static function Get_fb_pages_cached($user_ID) {
+			$pages_key = c_al2fb_transient_cache . md5('pgs' . $user_ID);
+			$pages = get_transient($pages_key);
+			if (get_option(c_al2fb_option_debug))
+				$pages = false;
+			if ($pages === false) {
+				$pages = WPAL2Int::Get_fb_pages($user_ID);
+				$duration = WPAL2Int::Get_duration(false);
+				set_transient($pages_key, $pages, $duration);
+			}
+			return $pages;
+		}
+
+		static function Clear_fb_pages_cache($user_ID) {
+			$pages_key = c_al2fb_transient_cache . md5('pgs' . $user_ID);
+			delete_transient($pages_key);
 		}
 
 		// Get page list
@@ -201,6 +238,24 @@ if (!class_exists('WPAL2Int')) {
 			$response = WPAL2Int::Request($url, $query, 'GET');
 			$accounts = json_decode($response);
 			return $accounts;
+		}
+
+		static function Get_fb_groups_cached($user_ID) {
+			$groups_key = c_al2fb_transient_cache . md5('grp' . $user_ID);
+			$groups = get_transient($groups_key);
+			if (get_option(c_al2fb_option_debug))
+				$groups = false;
+			if ($groups === false) {
+				$groups = WPAL2Int::Get_fb_groups($user_ID);
+				$duration = WPAL2Int::Get_duration(false);
+				set_transient($groups_key, $groups, $duration);
+			}
+			return $groups;
+		}
+
+		function Clear_fb_groups_cache($user_ID) {
+			$groups_key = c_al2fb_transient_cache . md5('grp' . $user_ID);
+			delete_transient($groups_key);
 		}
 
 		// Get group list
@@ -443,6 +498,10 @@ if (!class_exists('WPAL2Int')) {
 
 			// Add links to walls
 			foreach ($page_ids as $page_id) {
+				// https://developers.facebook.com/docs/reference/api/user/#posts
+				// https://developers.facebook.com/docs/reference/api/post/
+				if (empty($page_id))
+					$page_id = 'me';
 				$url = 'https://graph.facebook.com/' . $page_id . '/feed';
 				$url = apply_filters('al2fb_url', $url);
 
@@ -472,6 +531,13 @@ if (!class_exists('WPAL2Int')) {
 						$query_array['actions'] = json_encode($actions);
 					}
 
+					// Privacy
+					if ($page_id == 'me') {
+						$privacy = get_user_meta($user_ID, c_al2fb_meta_privacy, true);
+						if ($privacy)
+							$query_array['privacy'] = json_encode(array('value' => $privacy));
+					}
+
 					// Build request
 					$query = http_build_query($query_array, '', '&');
 
@@ -480,7 +546,7 @@ if (!class_exists('WPAL2Int')) {
 					update_option(c_al2fb_last_request_time, date('c'));
 					update_option(c_al2fb_last_texts, print_r($texts, true) . $query);
 					if (get_option(c_al2fb_option_debug)) {
-						add_post_meta($post->ID, c_al2fb_meta_log, date('c') . ' request=' . print_r($query_array, true));
+						add_post_meta($post->ID, c_al2fb_meta_log, date('c') . ' ' . $url . ' request=' . print_r($query_array, true));
 						add_post_meta($post->ID, c_al2fb_meta_log, date('c') . ' texts=' . print_r($texts, true));
 					}
 
@@ -491,7 +557,7 @@ if (!class_exists('WPAL2Int')) {
 					update_option(c_al2fb_last_response, $response);
 					update_option(c_al2fb_last_response_time, date('c'));
 					if (get_option(c_al2fb_option_debug))
-						add_post_meta($post->ID, c_al2fb_meta_log, date('c') . ' response=' . $response);
+						add_post_meta($post->ID, c_al2fb_meta_log, date('c') . ' ' . $url . ' response=' . $response);
 
 					// Decode response
 					$fb_link = json_decode($response);
@@ -545,13 +611,13 @@ if (!class_exists('WPAL2Int')) {
 					), '', '&');
 
 					if (get_option(c_al2fb_option_debug))
-						add_post_meta($post->ID, c_al2fb_meta_log, date('c') . ' request=' . print_r($query, true));
+						add_post_meta($post->ID, c_al2fb_meta_log, date('c') . ' ' . $url . ' request=' . print_r($query, true));
 
 					// Execute request
 					$response = WPAL2Int::Request($url, $query, 'POST');
 
 					if (get_option(c_al2fb_option_debug))
-						add_post_meta($post->ID, c_al2fb_meta_log, date('c') . ' response=' . $response);
+						add_post_meta($post->ID, c_al2fb_meta_log, date('c') . ' ' . $url . ' response=' . $response);
 
 					// Delete meta data
 					delete_post_meta($post->ID, c_al2fb_meta_link_id, $link_id);
@@ -644,6 +710,13 @@ if (!class_exists('WPAL2Int')) {
 				// Process response
 				$fb_comment = json_decode($response);
 				add_comment_meta($comment->comment_ID, c_al2fb_meta_fb_comment_id, $fb_comment->id);
+
+				// Remove previous errors
+				$error = get_post_meta($post->ID, c_al2fb_meta_error, true);
+				if (strpos($error, 'Add comment: ') !== false) {
+					delete_post_meta($post->ID, c_al2fb_meta_error, $error);
+					delete_post_meta($post->ID, c_al2fb_meta_error_time);
+				}
 			}
 			catch (Exception $e) {
 				update_post_meta($post->ID, c_al2fb_meta_error, 'Add comment: ' . $e->getMessage());
@@ -712,17 +785,28 @@ if (!class_exists('WPAL2Int')) {
 			$lang = WPAL2Int::Get_locale($user_ID);
 			$appid = get_user_meta($user_ID, c_al2fb_meta_client_id, true);
 
-			$result = '<script>(function(d, s, id) {' . PHP_EOL;
-			$result .= '  var js, fjs = d.getElementsByTagName(s)[0];' . PHP_EOL;
-			$result .= '  if (d.getElementById(id)) return;' . PHP_EOL;
-			$result .= '  js = d.createElement(s); js.id = id;' . PHP_EOL;
-			if ($appid)
-				$result .= '  js.src = "//connect.facebook.net/' . $lang . '/all.js#xfbml=1&appId=' . $appid . '";' . PHP_EOL;
-			else
-				$result .= '  js.src = "//connect.facebook.net/' . $lang . '/all.js#xfbml=1";' . PHP_EOL;
-			$result .= '  fjs.parentNode.insertBefore(js, fjs);' . PHP_EOL;
-			$result .= '}(document, \'script\', \'facebook-jssdk\'));</script>' . PHP_EOL;
-			return $result;
+			if (get_option(c_al2fb_option_noasync)) {
+				if ($appid)
+					$url = 'http://connect.facebook.net/' . $lang . '/all.js#appId=' . $appid . '&amp;xfbml=1';
+				else
+					$url = 'http://connect.facebook.net/' . $lang . '/all.js#xfbml=1';
+				return '<script src="' . $url . '" type="text/javascript"></script>' . PHP_EOL;
+			}
+			else {
+				$result = '<script type="text/javascript">' . PHP_EOL;
+				$result .= '(function(d, s, id) {' . PHP_EOL;
+				$result .= '  var js, fjs = d.getElementsByTagName(s)[0];' . PHP_EOL;
+				$result .= '  if (d.getElementById(id)) return;' . PHP_EOL;
+				$result .= '  js = d.createElement(s); js.id = id;' . PHP_EOL;
+				if ($appid)
+					$result .= '  js.src = "//connect.facebook.net/' . $lang . '/all.js#xfbml=1&appId=' . $appid . '";' . PHP_EOL;
+				else
+					$result .= '  js.src = "//connect.facebook.net/' . $lang . '/all.js#xfbml=1";' . PHP_EOL;
+				$result .= '  fjs.parentNode.insertBefore(js, fjs);' . PHP_EOL;
+				$result .= '}(document, "script", "facebook-jssdk"));' . PHP_EOL;
+				$result .= '</script>' . PHP_EOL;
+				return $result;
+			}
 		}
 
 		// Get HTML for like button
@@ -1404,6 +1488,7 @@ if (!class_exists('WPAL2Int')) {
 
 			$content = curl_exec($c);
 			$errno = curl_errno($c);
+			$errtext = curl_error($c);
 			$info = curl_getinfo($c);
 			curl_close($c);
 
@@ -1413,7 +1498,7 @@ if (!class_exists('WPAL2Int')) {
 				$error = json_decode($content);
 				$error = empty($error->error->message) ? $content : $error->error->message;
 				if ($errno || !$error)
-					$msg = 'cURL error ' . $errno . ': ' . $error . ' ' . print_r($info, true);
+					$msg = 'cURL communication error ' . $errno . ' ' . $errtext . ': ' . $error . ' ' . print_r($info, true);
 				else
 					$msg = $error;
 				update_option(c_al2fb_last_error, $msg);

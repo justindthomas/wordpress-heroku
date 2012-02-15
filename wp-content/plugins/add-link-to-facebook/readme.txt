@@ -1,10 +1,10 @@
 ﻿=== Add Link to Facebook ===
 Contributors: Marcel Bokhorst, M66B
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=AJSBB7DGNA3MJ&lc=US&item_name=Add%20Link%20to%20Facebook%20WordPress%20Plugin&item_number=Marcel%20Bokhorst&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted
-Tags: post, posts, Facebook, social, link, links, permalink, wpmu, admin, comment, comments, shortcode, sidebar, widget
+Tags: post, posts, Facebook, social, link, links, permalink, wpmu, admin, comment, comments, shortcode, sidebar, widget, bbPress
 Requires at least: 3.2
 Tested up to: 3.3.1
-Stable tag: 1.134
+Stable tag: 1.139
 
 Automatically add links to published posts or pages to your Facebook wall, pages or groups and more
 
@@ -40,6 +40,11 @@ or from Linux using [BloGTK](http://blogtk.jayreding.com/ "BloGTK") or [Blogilo]
 [Activity feed](http://developers.facebook.com/docs/reference/plugins/activity/ "Activity feed") and/or a link/icon to your Facebook profile
 * And much more!
 
+**Pro version:**
+
+* Add links to more than one Facebook page wall for one post
+* See [here](http://al2fb.bokhorst.biz/ "Add link to Facebook Pro") for details
+
 If you find this plugin useful, please rate it accordingly.
 If you rate this plugin low, please let me know why.
 Please report any issue you have with this plugin in the [support forum](http://forum.bokhorst.biz/add-link-to-facebook/ "Marcel's weblog - forum"), so I can at least try to fix it.
@@ -68,6 +73,8 @@ Translations are welcome, see [the FAQ](http://wordpress.org/extend/plugins/add-
 * Hebrew (he\_IL) by [Sagive](http://www.sagive.co.il/ "Sagive") and [Yossi Jana](http://www.webist.co.il "Yossi Jana"), thanks!
 * Belorussian (be\_BY) by [Igor Dubilei](http://www.itransition.com/ "Igor Dubilei"), thanks!
 * Brazilian Portuguese (pt\_BR) by [Bruno Cantuaria](http://cantuaria.net.br "Bruno Cantuaria"), thanks!
+* Slovak (sk\_SK) by [Viliam Brozman](http://www.brozman.sk/blog/ "Viliam Brozman"), thanks!
+* Serbian (sr\_RS) by [Plush Toys King team](http://plushtoysking.com "Plush Toys King team"), thanks!
 
 See [my other plugins](http://wordpress.org/extend/plugins/profile/m66b "Marcel Bokhorst").
 
@@ -397,6 +404,11 @@ The author of the plugin will probably know the name(s), else you will have to l
 The likes on Facebook are for the added link and the likes on WordPress are for the post/page.
 Facebook considers these as different objects.
 
+= U36 The privacy option is not working =
+
+You cannot add links with less privacy as specified in the Facebook application settings.
+To change this: Privacy Settings (right top triangle) > Apps and Websites > Edit Settings > Edit Settings (button) > Edit (link) > App activity privacy
+
 **--- Security ---**
 
 = X01 Which users can use this plugin? =
@@ -545,7 +557,7 @@ cURL errors are almost always caused by internet connection problems.
 For most cURL errors you need support from your hosting provider.
 
 Recent versions of the plugin report cURL errors encountered while importing Facebook comments and likes too:
-*Import comment: cURL error ...*
+*Import comment: cURL error ...* and *Add comment: cURL error ...*
 These error messages will be removed automatically after a next successful import for the same post/page.
 If these errors appear now and then, don't worry about them.
 This just means the internet connection from your hosting server isn't perfect.
@@ -673,7 +685,12 @@ Optionally fill in your name and describe the problem as accurate as possible an
 == Changelog ==
 
 = Development version =
-* Improvement: caching for settings page
+* Bugfix: number of likes / notice
+* New feature: [bbPress](http://wordpress.org/extend/plugins/bbpress/ "bbPress") support (both topics and replies)
+* Improvement: more debug info
+* Improvement: removed PhpConsole
+* Temporary: disabled plugins actions links
+* Added Serbian (sr\_RS) translation by [Plush Toys King team](http://plushtoysking.com "Plush Toys King team")
 
 Follow these steps to install the development version:
 
@@ -688,53 +705,46 @@ Follow these steps to install the development version:
 * Please report any problem you encounter
 * Reports that everything works are also appreciated :-)
 
-= 1.134 =
-* New feature: support for data URI images
-* Improvement: fixed Facebook/WordPress login (protocol has been changed)
-* 'Pro' version to add links to multiple page walls. Visit the plugin settings tab 'Page/group' for more details.
-
-= 1.133 =
-* Bugfix: update existing Facebook link
-* Workaround: *trailingslashit* for redirect URI
-* New feature: show link on WordPress to added link on Facebook (option); shortcode/template tag/filter: *al2fb_anchor*
-* New feature: [auto refresh](https://developers.facebook.com/docs/offline-access-deprecation/) Facebook token
-* New feature: filters: *al2fb_excluded_tags*, *al2fb_excluded_categories*, *al2fb_excluded_authors*, *al2fb_preprocess_comment*
-* Improvement: further memory usage reduction by splitting source code in more files
-* Improvement: fixed notices when saving settings
-* Improvement: excluded post types, tags, categories and authors apply to all plugins (link button, comments plugin, etc)
-* Improvement: *Do not verify the peer's certificate* for fetching Avatars too
-* Improvement: asynchronous loading of [Facebook SDK](https://developers.facebook.com/docs/reference/javascript/ "Facebook SDK")
-* Added new screenshots
-* Updated FAQ and [Setup guide](http://wordpress.org/extend/plugins/add-link-to-facebook/other_notes/ "Setup guide")
+= 1.139 =
+* New feature: option to limit imported comment length (comment trailer)
+* Improvement: no text trailer when not needed
+* Improvement: option to set privacy to *Only me*
+* Improvement: clear cache when changing page/group settings
+* Improvement: more debug information
+* Improvement: display cURL error text
+* Improvement: floating resources box
+* Workaround: fix links to groups
+* Updated FAQ: added question U36 about the privacy option
 * Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
+* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
+
+= 1.138 =
+* Bugfix: adding links as me: use correct URL
+* Bugfix: handle errors when fetching pages/groups
+* New feature: option to set link privacy (tab appearance)
+* Improvement: no caching in debug mode
+* Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
+* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
+
+= 1.137 =
+* Improvement: remove add comment errors after successful adding comment for same post
 * Updated German (de\_DE) translation by [Wolfgang Tischer](http://www.literaturcafe.de "Wolfgang Tischer")
-* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
 
-= 1.132 =
-* New feature: support for multi site installs (settings per user/blog)
-* Improvement: exluding custom post type of [Mute Screamer](http://wordpress.org/extend/plugins/mute-screamer/ "Mute Screamer")
-* Improvement: cache widget messages
-* Improvement: new (default) filters: *al2fb_fb_comments*, *al2fb_fb_likes*, *al2fb_fb_feed*, *al2fb_fb_picture*
-* Improvement: enable all error reporting when in debug mode
-* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
-
-= 1.131 =
-* Improvement: clarified option *See all pages*
-* Improvement: hiding page selection when groups enabled
-* Improvement: consistent use of post type exclusions (all shortcodes, widgets, plugins)
-* Improvement: excluding custom post types of [bbPress](http://wordpress.org/extend/plugins/bbpress/ "bbPress")
-* Improvement: new filter: *al2fb_excluded_post_types*
-* Improvement: new filter: *al2fb_url*
-* Improvement: NextGEN featured image compatibility
-* Improvement: forum topic link debug info
-* Updated required WordPress version to version 3.2
+= 1.136 =
+* Bugfix: default picture URL
+* Bugfix: link Facebook comments to added links disabled for groups (doesn't work)
+* Bugfix: take into account the post ping status for likes (import/count)
 * Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
-* Updated Italian (it\_IT) translation by [Gianni](http://gidibao.net/ "Gianni")
+* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
+* Added Slovak (sk\_SK) translation by [Viliam Brozman](http://www.brozman.sk/blog/ "Viliam Brozman")
 
-= 1.129 =
-* Updated FAQ
-* New feature: delete added link when move to trash
-* Improvement: no Facebook comment import when comments closed.
+= 1.135 =
+* New feature: option to disable asynchronous Facebook script
+* Improvement: caching for settings page
+* Improvement: added script type to Facebook JavaScript
+* Improvement: no likers, like button and comments plugin in excerpts
+* Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
+* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
 
 = Older versions =
 * Deleted, because of maximum readme.txt size
@@ -742,20 +752,20 @@ Follow these steps to install the development version:
 
 == Upgrade Notice ==
 
-= 1.134 =
-One new feature, one improvement, 'Pro' version: add to multiple page walls
+= 1.139 =
+One new feature, six improvements, one workaround, translation updates
 
-= 1.133 =
-One bugfix, one workaround, three new features, five improvements, updated FAQ & setup guide, translation updates
+= 1.138 =
+Two bugfixes, one new feature, one improvement, translation updates
 
-= 1.132 =
-One new feature, four improvements, translation update
+= 1.137 =
+One improvement, translation update
 
-= 1.131 =
-Eight improvements, translation updates
+= 1.136 =
+Three bugfixes, new translation, translation updates
 
-= 1.129 =
-One new feature, one improvement
+= 1.135 =
+One new feature, three improvements, translation updates
 
 == Setup guide ==
 
