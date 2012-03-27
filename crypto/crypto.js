@@ -6,7 +6,14 @@ function init(evt) {
 
 function update() {
   var e = document.getElementById("entropy");
-  e.value = sjcl.random.getProgress(10);
+  var progress = sjcl.random.getProgress(10);
+
+  if(progress === undefined) {
+    e.value = "complete";
+    window.removeEventListener("mousemove",update);
+  } else {
+    e.value = progress;
+  }
 }
 
 function crypto() {  
