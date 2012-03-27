@@ -2,6 +2,11 @@ function init(evt) {
   c = new crypto();
 }
 
+function update() {
+  var e = document.getElementById("entropy");
+  e.value = sjcl.random.getProgress(10);
+}
+
 function crypto() {  
     if(localStorage.pubkeybob && localStorage.seckeybob) {
 	console.log("pulling keys from local storage");
