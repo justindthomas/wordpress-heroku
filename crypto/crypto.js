@@ -95,9 +95,8 @@ function crypto() {
     }
     
     this.generateKeys = function() {
-	sjcl.random.addEntropy(12342523462345,256);
-	sjcl.random.addEntropy(1252345234523,256);
-	sjcl.random.addEntropy(324524534252345,256);
+	window.addEventListener("mousemove",update);
+	sjcl.random.startCollectors();
 	
 	var bobkeys = sjcl.ecc.elGamal.generateKeys(384, 0)
 	var alicekeys = sjcl.ecc.elGamal.generateKeys(384, 0)
