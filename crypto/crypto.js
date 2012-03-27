@@ -105,8 +105,8 @@ function crypto() {
     }
     
     this.generateKeys = function() {
-	var bobkeys = sjcl.ecc.elGamal.generateKeys(384, 0)
-	var alicekeys = sjcl.ecc.elGamal.generateKeys(384, 0)
+	var bobkeys = sjcl.ecc.elGamal.generateKeys(384, 10)
+	var alicekeys = sjcl.ecc.elGamal.generateKeys(384, 10)
 
 	if(localStorage != undefined) {
 	    localStorage.setItem('pubkeybob', JSON.stringify(bobkeys.pub.serialize()));
