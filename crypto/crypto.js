@@ -9,11 +9,11 @@ function update() {
   var progress = sjcl.random.getProgress(10);
 
   if(progress === undefined) {
-    e.innerHTML = "complete";
+    e.innerHTML = "sufficient";
     sjcl.random.stopCollectors();
     window.removeEventListener("mousemove",update);
   } else {
-    e.innerHTML = progress;
+    e.innerHTML = progress.toFixed(2);
   }
 }
 
