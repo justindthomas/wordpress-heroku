@@ -1,5 +1,7 @@
 function init(evt) {
   c = new crypto();
+  window.addEventListener("mousemove",update);
+  sjcl.random.startCollectors();
 }
 
 function update() {
@@ -95,9 +97,6 @@ function crypto() {
     }
     
     this.generateKeys = function() {
-	window.addEventListener("mousemove",update);
-	sjcl.random.startCollectors();
-	
 	var bobkeys = sjcl.ecc.elGamal.generateKeys(384, 0)
 	var alicekeys = sjcl.ecc.elGamal.generateKeys(384, 0)
 
