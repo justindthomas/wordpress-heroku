@@ -10,6 +10,7 @@ function update() {
 
   if(progress === undefined) {
     e.value = "complete";
+    sjcl.random.stopCollectors();
     window.removeEventListener("mousemove",update);
   } else {
     e.value = progress;
