@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=AJSBB
 Tags: post, posts, Facebook, social, link, links, permalink, wpmu, admin, comment, comments, shortcode, sidebar, widget, bbPress
 Requires at least: 3.2
 Tested up to: 3.3.1
-Stable tag: 1.145
+Stable tag: 1.146
 
 Automatically add links to published posts or pages to your Facebook wall, pages or groups and more
 
@@ -110,10 +110,13 @@ Continue to the [Setup guide](http://wordpress.org/extend/plugins/add-link-to-fa
 
 Take a look at [the screen shot](http://wordpress.org/extend/plugins/add-link-to-facebook/screenshots/ "Screen shot") to get an idea of what is what.
 
-The plugin will use the excerpt if available, else the post text and will use it as description.
-The option *Use excerpt as message* will move the excerpt to the message at top and the post text will be used as description at the bottom.
-If you specify a *Text trailer* the text will be truncated and the text trailer (for example *Read more ...*) will be used as last words (no link).
-If you clear the text trailer, Facebook will show *See more* and if you click on it, see can see the whole post on Facebook.
+The plugin will use the excerpt as description and when not available it will use part of the post text.
+If you specify a *Text trailer* the text will be truncated and the text trailer (for example *Read more ...*)
+will be used as last words (no link, Facebook does not allow this).
+If you leave the text trailer blank, Facebook will show *See more* and if you click on it, you will see the whole post text on Facebook.
+The options *Use site title as caption* and *Use excerpt as message* (tab *Appearance*) do what they say.
+If you leave the excerpt blank, the site title will be used as message. This is to prevent grouping of links.
+See question U37 for an alternative method.
 
 = U02 Why is the option 'Featured post image' grayed out? =
 
@@ -181,8 +184,7 @@ select the page you want the links to be added to using the option *Add to page*
 Be sure to check the option *See all pages*.
 You'll have to re-authorize one more time, because an extra Facebook permission is required for this.
 Note that pages and groups exclude each other (except in the Pro version).
-
-If you want to add links to a page, the Facebook account you authorized with should have permission to that page.
+You can only add links to pages you are owner of.
 
 = U13 I want to add links to a group =
 
@@ -328,21 +330,16 @@ since Facebook consider these as different objects.
 
 = U27 I want pink links! ;-) =
 
-How, when and where links appear on your wall is entirely determined by Facebook.
+How, when and where links, comments, etc appear on your wall/page/group is entirely determined by Facebook.
 Only a few link properties can be set by the plugin.
 See [here](https://developers.facebook.com/docs/reference/api/link/) for the official documentation.
 
+The social plugins, such as the like box, comments plugin and activity feed, seem to be part of your website,
+but in reality these plugins run on Facebook. This means the appearance and behavior of these plugins can only be changed by Facebook.
+
 = U28 Can I display the widget / social plugins on every page? =
 
-This is not directly possible. The plugin is a multi-user plugin.
-Only on single posts/pages an author can be determined, which is needed to get the correct settings (layout, link, etc).
-
-However, there is a workaround: choose a post/page you want to tie the widget to and
-use one or more of the shortcodes to display what you want using the *post_id* parameter, see question U23 for more details.
-
-You probably want to enable the option *Execute shortcodes in widgets*.
-
-This applies to some Open Graph Meta tags as well.
+Yes, enable the widget option *Show everywhere using my settings*
 
 = U29 How can I use the Facebook registration form/login button? =
 
@@ -400,6 +397,7 @@ Sometimes this is desirable and sometimes not.
 If this is not wanted, you will have to find out the name(s) of the custom post types
 and to put them into the plugin option *Exclude these custom post types* (admin only).
 The author of the plugin will probably know the name(s), else you will have to look into the source code or database.
+The custom post types for the last 10 posts are visible in the debug information (see last question).
 
 = U35 The link picture is wrong =
 
@@ -418,12 +416,12 @@ The privacy option doesn't work if you use the option *Use links API instead of 
 
 Enabling the option *Use excerpt as message* will prevent grouping of links.
 If you don't write an excerpt the site title will be used as message.
-You can also enable the option *Use links API instead of feed API*.
+You can also enable the option *Use links API instead of feed API* (tab *Admin*).
 There is one known limitation, see the previous question.
 
 = U38 I see HTML / shortcodes on Facebook =
 
-Try enabling one of these options on the plugin settings tab *Admin*:
+Try disabling one of these options on the plugin settings tab *Admin*:
 
 * *Do not execute shortcodes for texts*
 * *Do not execute filters for texts*
@@ -439,6 +437,11 @@ wait at least 10 minutes (because of caching) and then refresh the post page whe
 Please note that only comments on links added by the plugin are imported (the link is the anchor).
 Another potential problem are the privacy settings of the Facebook account that was used to comment on Facebook.
 Try writing a comment with another Facebook account.
+
+= U40 I don't see pictures in the messages widget =
+
+The messages widget only imports status updates, not links with pictures.
+Consider using the activity feed instead.
 
 **--- Security ---**
 
@@ -592,6 +595,8 @@ You might need to manually remove the link information of the plugin.
 On the post edit page click *Screen Options* (upper right) and tick *Custom fields*.
 Scroll down to the meta box *Custom fields* and delete the value *al2fb_facebook_link_id*.
 
+You can prevent this problem by deleting the link using the plugin.
+
 = E15 I get 'Error validating access token' =
 
 Most often this happen when you changed your Facebook password.
@@ -684,10 +689,14 @@ Optionally fill in your name and describe the problem as accurate as possible an
 == Changelog ==
 
 = Development version =
-* New feature: option to set additional URL parameters (for example for Google Analytics)
-* Improvement: more debug info, more error checking
+* Bugfix: character encoding of imported comments
+* Bugfix: comment/like count
+* Improvement: increased link picture size from thumbnail to medium
+* New feature: disabled sending pingbacks/trackbacks to Facebook (option)
+* Updated FAQ
 * Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
-* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen").
+* Updated German (de\_DE) translation by [Wolfgang Tischer](http://www.literaturcafe.de/ "Wolfgang Tischer")
+* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
 
 Follow these steps to install the development version:
 
@@ -702,6 +711,15 @@ Follow these steps to install the development version:
 * Please report any problem you encounter
 * Reports that everything works are also appreciated :-)
 
+= 1.146 =
+* New feature: option to set additional URL parameters (for example for Google Analytics)
+* New feature: display widget everywhere (widget option)
+* New feature: OGP video meta tag
+* Improvement: more debug info, more error checking
+* Updated FAQ
+* Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
+* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
+
 = 1.145 =
 * Bugfix: using multi-byte string functions if present
 
@@ -711,81 +729,20 @@ Follow these steps to install the development version:
 * Improvement: disable post related errors too, when *Do not display notices* is checked (except for the edit page of a post with errors)
 * Updated FAQ: two new questions
 
-= 1.143 =
-* New feature: filter *al2fb_message*
-* New feature: option to use links API instead of feed API (experimental!)
-* Bugfix: plugin update checker for multisites
-* Bugfix: clear cache when authorizing / changing configuration
-* Bugfix: admin styles
-* Bugfix: always filter caption
-* Bugfix: link to personal profile
-* Bugfix: privacy option
-* Improvement: set plugin update frequency to one hour
-* Improvement: display main URL for multisites
-* Improvement: debug info for multisites
-* Improvement: use site title as message when no excerpt
-* Updated FAQ
-* Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
-* Updated German (de\_DE) translation by [Wolfgang Tischer](http://www.literaturcafe.de "Wolfgang Tischer")
-* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
-
-= 1.142 =
-* New feature: support for [Viper's Video Quicktags](http://wordpress.org/extend/plugins/vipers-video-quicktags/)
-* New feature: link to home page from Facebook
-* Improvement: strip privacy sensitive information from error messages
-* Updated FAQ
-* Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
-* Added Greek (el\_EL) translation
-* Updated Italian (it\_IT) translation by [Gianni](http://gidibao.net/ "Gianni")
-
-= 1.141 =
-* Bugfix: number of likes / notice
-* New feature: [bbPress support](http://wordpress.org/support/topic/add-link-to-facebook-support-bbpress-now)
-* New feature: option to hide post submit actions based on capabilities
-* Improvement: more debug info
-* Improvement: removed PhpConsole
-* Improvement: excluding custom post type *tweet*
-* Added Serbian (sr\_RS) translation by [Plush Toys King team](http://plushtoysking.com "Plush Toys King team")
-* Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
-* Updated Italian (it\_IT) translation by [Gianni](http://gidibao.net/ "Gianni")
-* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
-
-= 1.139 =
-* New feature: option to limit imported comment length (comment trailer)
-* Improvement: no text trailer when not needed
-* Improvement: option to set privacy to *Only me*
-* Improvement: clear cache when changing page/group settings
-* Improvement: more debug information
-* Improvement: display cURL error text
-* Improvement: floating resources box
-* Workaround: fix links to groups
-* Updated FAQ: added question U36 about the privacy option
-* Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
-* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
-
 = Older versions =
 * Deleted, because of maximum readme.txt size
 * Newer versions should always be compatible with [older versions](http://wordpress.org/extend/plugins/add-link-to-facebook/download/ "Other Versions")
 
 == Upgrade Notice ==
 
+= 1.146 =
+Three new features, one improvement, updated FAQ & translations
+
 = 1.145 =
 One bugfix
 
 = 1.144 =
 Two bugfixes, one improvement
-
-= 1.143 =
-Two new features, six bugfixes, four improvements, FAQ & translation updates
-
-= 1.142 =
-Two new features, one improvement, updated documentation & translations
-
-= 1.141 =
-One bugfix, two new features, three improvements, translation updates
-
-= 1.139 =
-One new feature, six improvements, one workaround, translation updates
 
 == Setup guide ==
 
