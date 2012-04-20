@@ -2189,7 +2189,7 @@ p {
 		$timeout = (int) ini_get( 'max_execution_time' );
 		if ( !$timeout )
 			$timeout = 30;
-		$timeout = intval( $timeout );
+		$timeout = intval( $timeout / 2 );
 
 		$gmt_offset = get_option( 'gmt_offset' );
 		if ( !$gmt_offset ) {
