@@ -83,7 +83,7 @@ class WP_Http {
 
 		$defaults = array(
 			'method' => 'GET',
-			'timeout' => apply_filters( 'http_request_timeout', 30),
+			'timeout' => apply_filters( 'http_request_timeout', 5),
 			'redirection' => apply_filters( 'http_request_redirection_count', 5),
 			'httpversion' => apply_filters( 'http_request_version', '1.0'),
 			'user-agent' => apply_filters( 'http_headers_useragent', 'WordPress/' . $wp_version . '; ' . get_bloginfo( 'url' )  ),
@@ -612,7 +612,7 @@ class WP_Http_Fsockopen {
 	 */
 	function request($url, $args = array()) {
 		$defaults = array(
-			'method' => 'GET', 'timeout' => 30,
+			'method' => 'GET', 'timeout' => 5,
 			'redirection' => 5, 'httpversion' => '1.0',
 			'blocking' => true,
 			'headers' => array(), 'body' => null, 'cookies' => array()
