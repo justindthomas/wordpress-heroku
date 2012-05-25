@@ -50,26 +50,6 @@ function al2fb_debug_info($al2fb) {
 	else
 		$shared_user_ID = get_option(c_al2fb_option_app_share);
 
-	// Get page
-	try {
-		if ($al2fb->Is_authorized($user_ID)) {
-			$me = WPAL2Int::Get_fb_me_cached($user_ID, false);
-			if ($me == null)
-				$page = 'n/a';
-			else {
-				$page = '<a href="' . $me->link . '" target="_blank">' . htmlspecialchars($me->name, ENT_QUOTES, $charset);
-				if (!empty($me->category))
-					$page .= ' - ' . htmlspecialchars($me->category, ENT_QUOTES, $charset);
-				$page .= '</a>';
-			}
-		}
-		else
-			$page = 'n/a';
-	}
-	catch (Exception $e) {
-		$page = get_user_meta($user_ID, c_al2fb_meta_page, true) . ': ' . $e->getMessage();
-	}
-
 	// Get picture
 	$picture = '<a href="' . get_user_meta($user_ID, c_al2fb_meta_picture, true) . '" target="_blank">' . get_user_meta($user_ID, c_al2fb_meta_picture, true) . '</a>';
 	$picture_default = '<a href="' . get_user_meta($user_ID, c_al2fb_meta_picture_default, true) . '" target="_blank">' . get_user_meta($user_ID, c_al2fb_meta_picture_default, true) . '</a>';
@@ -154,10 +134,22 @@ function al2fb_debug_info($al2fb) {
 	$info .= '<tr><td>Custom picture URL:</td><td>' . $picture . '</td></tr>';
 	$info .= '<tr><td>Default picture URL:</td><td>' . $picture_default . '</td></tr>';
 
-	$info .= '<tr><td>Page:</td><td>' . $page . '</td></tr>';
-	$info .= '<tr><td>Page owner:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_page_owner, true) ? 'Yes' : 'No') . '</td></tr>';
+	try {
+		$page_ids = WPAL2Int::Get_page_ids($user_ID);
+		foreach ($page_ids as $page_id) {
+			$pinfo = WPAL2Int::Get_fb_info_cached($user_ID, empty($page_id) ? 'me' : $page_id);
+			$info .= '<tr><td>Wall:</td><td><a href="' . $pinfo->link . '">';
+			$info .= htmlspecialchars($pinfo->name, ENT_QUOTES, $charset);
+			if (!empty($pinfo->category))
+				$info .= ' - ' . htmlspecialchars($pinfo->category, ENT_QUOTES, $charset);
+			$info .= '</a></td></tr>';
+		}
+	}
+	catch (Exception $e) {
+		$info .= '<tr><td>Page:</td><td>' . htmlspecialchars($e->getMessage(), ENT_QUOTES, $charset) . '</a></td></tr>';
+	}
+
 	$info .= '<tr><td>Use groups:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_use_groups, true) ? 'Yes' : 'No')  . '</td></tr>';
-	$info .= '<tr><td>Group:</td><td>' . get_user_meta($user_ID, c_al2fb_meta_group, true) . '</td></tr>';
 
 	$info .= '<tr><td>Caption:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_caption, true) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>Excerpt:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_msg, true) ? 'Yes' : 'No') . '</td></tr>';
@@ -172,6 +164,7 @@ function al2fb_debug_info($al2fb) {
 	$info .= '<tr><td>FB comments copy:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_fb_comments_copy, true) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>FB comments no link:</td><td>' . get_user_meta($user_ID, c_al2fb_meta_fb_comments_nolink, true) . '</td></tr>';
 	$info .= '<tr><td>FB likes:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_fb_likes, true) ? 'Yes' : 'No') . '</td></tr>';
+	$info .= '<tr><td>Importing:</td><td>' . (get_option(c_al2fb_log_importing) ? 'Yes' : 'No') . '</td></tr>';
 
 	$info .= '<tr><td>Post likers:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_post_likers, true) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>Post like button:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_post_like_button, true) ? 'Yes' : 'No') . '</td></tr>';
@@ -193,6 +186,7 @@ function al2fb_debug_info($al2fb) {
 	$info .= '<tr><td>Combine buttons:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_post_combine_buttons, true) ? 'Yes' : 'No') . '</td></tr>';
 
 	$info .= '<tr><td>Like box width:</td><td>' . get_user_meta($user_ID, c_al2fb_meta_like_box_width, true) . '</td></tr>';
+	$info .= '<tr><td>Like box height:</td><td>' . get_user_meta($user_ID, c_al2fb_meta_like_box_height, true) . '</td></tr>';
 	$info .= '<tr><td>Like box border:</td><td>' . get_user_meta($user_ID, c_al2fb_meta_like_box_border, true) . '</td></tr>';
 	$info .= '<tr><td>Like box no header:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_like_box_noheader, true) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>Like box no stream:</td><td>' . (get_user_meta($user_ID, c_al2fb_meta_like_box_nostream, true) ? 'Yes' : 'No') . '</td></tr>';
@@ -209,6 +203,7 @@ function al2fb_debug_info($al2fb) {
 	$info .= '<tr><td>Login width:</td><td>' . get_user_meta($user_ID, c_al2fb_meta_login_width, true) . '</td></tr>';
 	$info .= '<tr><td>Registration URL:</td><td><a href="' . get_user_meta($user_ID, c_al2fb_meta_login_regurl, true) . '" target="_blank">Link</a></td></tr>';
 	$info .= '<tr><td>Redir URL:</td><td><a href="' . get_user_meta($user_ID, c_al2fb_meta_login_redir, true) . '" target="_blank">Link</a></td></tr>';
+	$info .= '<tr><td>Add links:</td><td>' . (get_option(c_al2fb_option_login_add_links) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>Login text/HTML:</td><td><a href="' . htmlspecialchars(get_user_meta($user_ID, c_al2fb_meta_login_html, true), ENT_QUOTES, $charset) . '" target="_blank">Link</a></td></tr>';
 
 	$info .= '<tr><td>Activity width:</td><td>' . get_user_meta($user_ID, c_al2fb_meta_act_width, true) . '</td></tr>';
@@ -241,7 +236,7 @@ function al2fb_debug_info($al2fb) {
 	$info .= '<tr><td>No shortcode:</td><td>' . (get_option(c_al2fb_option_noshortcode) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>No filter:</td><td>' . (get_option(c_al2fb_option_nofilter) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>No filter comments:</td><td>' . (get_option(c_al2fb_option_nofilter_comments) ? 'Yes' : 'No') . '</td></tr>';
-	$info .= '<tr><td>Site URL:</td><td>' . htmlspecialchars(get_option(c_al2fb_option_siteurl), ENT_QUOTES, $charset) . '</td></tr>';
+	$info .= '<tr><td>Site URL:</td><td>' . (get_option(c_al2fb_option_siteurl) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>Do not use cURL:</td><td>' . (get_option(c_al2fb_option_nocurl) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>Use publish_post:</td><td>' . (get_option(c_al2fb_option_use_pp) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>Debug:</td><td>' . (get_option(c_al2fb_option_debug) ? 'Yes' : 'No') . '</td></tr>';
@@ -249,6 +244,8 @@ function al2fb_debug_info($al2fb) {
 	$info .= '<tr><td>SSP info:</td><td><a href="' . get_option(c_al2fb_option_ssp_info) . '">link</a></td></tr>';
 	$info .= '<tr><td>Filter prio:</td><td>' . intval(get_option(c_al2fb_option_filter_prio)) . '</td></tr>';
 	$info .= '<tr><td>No script:</td><td>' . (get_option(c_al2fb_option_noscript) ? 'Yes' : 'No') . '</td></tr>';
+	$info .= '<tr><td>Links API:</td><td>' . (get_option(c_al2fb_option_uselinks) ? 'Yes' : 'No') . '</td></tr>';
+	$info .= '<tr><td>No token refresh:</td><td>' . (get_option(c_al2fb_option_notoken_refresh) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>Clean:</td><td>' . (get_option(c_al2fb_option_clean) ? 'Yes' : 'No') . '</td></tr>';
 	$info .= '<tr><td>CSS:</td><td>' . htmlspecialchars(get_option(c_al2fb_option_css), ENT_QUOTES, $charset) . '</td></tr>';
 
@@ -268,7 +265,7 @@ function al2fb_debug_info($al2fb) {
 	while ($posts->have_posts()) {
 		$posts->next_post();
 		$userdata = get_userdata($posts->post->post_author);
-		$link_id = get_post_meta($posts->post->ID, c_al2fb_meta_link_id, true);
+		$link_ids = get_post_meta($posts->post->ID, c_al2fb_meta_link_id, false);
 
 		// Selected picture
 		$selected_picture = null;
@@ -316,9 +313,39 @@ function al2fb_debug_info($al2fb) {
 		// Actual picture
 		$picture = $al2fb->Get_link_picture($posts->post, $al2fb->Get_user_ID($posts->post));
 
+		// Imported comments
+		$xuser_ID = WPAL2Facebook::Get_user_ID($posts->post);
+		$excluded = WPAL2Facebook::Is_excluded($posts->post);
+		$post_type = $posts->post->post_type;
+		$nointegrate = get_post_meta($posts->post->ID, c_al2fb_meta_nointegrate, true);
+		$comment_status = $posts->post->comment_status;
+		$recent = WPAL2Facebook::Is_recent($posts->post);
+		$comments_enabled = get_user_meta($xuser_ID, c_al2fb_meta_fb_comments, true);
+		$comment_count = '?';
+		if ($xuser_ID && !$excluded && $post_type != 'reply' && !$nointegrate && $comment_status == 'open' && $recent && $comments_enabled) {
+			$fb_comments = WPAL2Int::Get_comments_or_likes($posts->post, false);
+			if ($fb_comments) {
+				$comment_count = 0;
+				foreach ($fb_comments->data as $fb_comment)
+					$comment_count++;
+			}
+		}
+
+		// Exported comments
+		$total_count = '-';
+		$stored_count = '-';
+		$stored_comments = get_comments('post_id=' . $posts->post->ID);
+		if ($stored_comments) {
+			$total_count = count($stored_comments);
+			$stored_count = 0;
+			foreach ($stored_comments as $comment)
+				if (get_comment_meta($comment->comment_ID, c_al2fb_meta_fb_comment_id, true))
+					$stored_count++;
+		}
+
 		$info .= '<tr><td>' . $posts->post->post_type . ' #' . $posts->post->ID . ':</td>';
 		$info .= '<td><a href="' . get_permalink($posts->post->ID) . '" target="_blank">' . htmlspecialchars(get_the_title($posts->post->ID), ENT_QUOTES, $charset) . '</a>';
-		$info .= ' by ' . htmlspecialchars($userdata->user_login, ENT_QUOTES, $charset);
+		$info .= ' by ' . htmlspecialchars($userdata->user_login, ENT_QUOTES, $charset) . ' (' . $posts->post->post_author . ')';
 		$info .= ' @ ' . $posts->post->post_date;
 		$info .= ' <a href="' . $picture['picture'] . '" target="_blank">result:' . $picture['picture_type'] . '</a>';
 		if (!empty($selected_picture))
@@ -331,8 +358,15 @@ function al2fb_debug_info($al2fb) {
 			$info .= ' <a href="' . $post_picture . '" target="_blank">post</a>';
 		if (!empty($avatar_picture))
 			$info .= ' <a href="' . $avatar_picture . '" target="_blank">avatar</a>';
-		if (!empty($link_id))
-			$info .= ' <a href="' . WPAL2Int::Get_fb_permalink($link_id) . '" target="_blank">Facebook</a>';
+		if (!empty($link_ids))
+			foreach ($link_ids as $link_id)
+				$info .= ' <a href="' . WPAL2Int::Get_fb_permalink($link_id) . '" target="_blank">Facebook</a>';
+
+		$info .= ' user=' . $xuser_ID . ' exluded=' . ($excluded ? 'Y' : 'N') . ' integrate=' . (!$nointegrate ? 'Y' : 'N');
+		$info .= ' status=' . $comment_status . ' recent=' . ($recent ? 'Y' : 'N') . ' enabled=' . ($comments_enabled ? 'Y' : 'N');
+		$info .= ' count=' . $comment_count;
+		$info .= ' export=' . $stored_count . '/' . $total_count;
+
 		$info .= '</td></tr>';
 	}
 

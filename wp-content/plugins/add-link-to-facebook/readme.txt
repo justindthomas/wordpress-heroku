@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=AJSBB
 Tags: post, posts, Facebook, social, link, links, permalink, wpmu, admin, comment, comments, shortcode, sidebar, widget, bbPress
 Requires at least: 3.2
 Tested up to: 3.3.2
-Stable tag: 1.149
+Stable tag: 1.157
 
 Automatically add links to published posts or pages to your Facebook wall, pages or groups and more
 
@@ -44,11 +44,11 @@ or from Linux using [BloGTK](http://blogtk.jayreding.com/ "BloGTK") or [Blogilo]
 **Pro version:**
 
 * Add links to more than one Facebook page wall for one post
-* See [here](http://al2fb.bokhorst.biz/ "Add link to Facebook Pro") for details
+* See [here](http://www.faircode.eu/al2fbpro/) for details
 
 If you find this plugin useful, please rate it accordingly.
 If you rate this plugin low, please let me know why.
-Please report any issue you have with this plugin in the [support forum](http://forum.bokhorst.biz/add-link-to-facebook/ "Marcel's weblog - forum"), so I can at least try to fix it.
+Please report any issue you have with this plugin in the [support forum](http://forum.faircode.eu/), so I can at least try to fix it.
 Solutions to common problems are described in [the FAQ](http://wordpress.org/extend/plugins/add-link-to-facebook/faq/ "FAQ").
 
 Translations are welcome, see [the FAQ](http://wordpress.org/extend/plugins/add-link-to-facebook/faq/ "FAQ") for instructions.
@@ -73,11 +73,12 @@ Translations are welcome, see [the FAQ](http://wordpress.org/extend/plugins/add-
 * Czech (cs\_CZ) by [Artemian](http://www.artemian.cz/ "Artemian"), thanks!
 * Hebrew (he\_IL) by [Sagive](http://www.sagive.co.il/ "Sagive") and [Yossi Jana](http://www.webist.co.il "Yossi Jana"), thanks!
 * Belorussian (be\_BY) by [Igor Dubilei](http://www.itransition.com/ "Igor Dubilei"), thanks!
-* Brazilian Portuguese (pt\_BR) by [Bruno Cantuaria](http://cantuaria.net.br "Bruno Cantuaria"), thanks!
+* (Brazilian) Portuguese (pt\_BR/pt_PT) by [Bruno Cantuaria](http://cantuaria.net.br "Bruno Cantuaria") and [Claudio Lessa](http://www.claudiolessa.com/ "Claudio Lessa"), thanks!
 * Slovak (sk\_SK) by [Viliam Brozman](http://www.brozman.sk/blog/ "Viliam Brozman"), thanks!
-* Serbian (sr\_RS) by [Plush Toys King team](http://plushtoysking.com "Plush Toys King team"), thanks!
+* Serbian (sr\_RS), thanks!
 * Greek (el\_EL), thanks!
-* Lithuanian (lt\_LT), thanks!
+* Lithuanian (lt\_LT) by [Host1Free](http://www.host1free.com/ "Host1Free"), thanks!
+* Danish (da\_DK) by [Mads Phikamphon](http://www.genvejen.dk/ "Mads Phikamphon"), thanks
 
 See [my other plugins](http://wordpress.org/extend/plugins/profile/m66b "Marcel Bokhorst")
 
@@ -151,8 +152,8 @@ You are adviced to let the plugin select an image (the default setting is to sel
 
 = U06 Why doesn't Facebook display my link picture? =
 
-Maybe because it is smaller than 50 x 50 pixels.
-Facebook might also have had trouble accessing the image.
+Maybe because the image is too small or Facebook had trouble accessing the image.
+Another cause could be that you disabled the Open Graph Protocol (a plugin option enabled be default).
 
 = U07 I don't want a link picture =
 
@@ -182,9 +183,7 @@ This option is only available *after* you have authorized, since information fro
 
 Just go to the plugin settings through the WordPress *Tools* menu and
 select the page you want the links to be added to using the option *Add to page* on the tab *Page/group*.
-Be sure to check the option *See all pages*.
-You'll have to re-authorize one more time, because an extra Facebook permission is required for this.
-Note that pages and groups exclude each other (except in the Pro version).
+Note that pages and groups exclude each other (except in the [Pro version](http://www.faircode.eu/al2fbpro/)).
 You can only add links to pages you are owner of.
 
 = U13 I want to add links to a group =
@@ -193,7 +192,7 @@ This option is only available *after* you have authorized, since information fro
 
 Just go to the plugin settings through the WordPress *Tools* menu and check *Use groups* on the tab *Page/group*.
 You'll have to re-authorize one more time, because an extra Facebook permission is required for this.
-Note that pages and groups exclude each other (except in the Pro version).
+Note that pages and groups exclude each other (except in the [Pro version](http://www.faircode.eu/al2fbpro/)).
 Also note that it is only possible to add links using your personal account (a Facebook limitation).
 However, you can add links to pages as page owner, so consider switching to pages.
 
@@ -232,7 +231,7 @@ You can use the [Dutch translation](http://plugins.svn.wordpress.org/add-link-to
 After saving the file, you can translate it by using a text editor or [Poedit](http://www.poedit.net/ "Poedit").
 [See here](http://drupal.org/node/17564 "Poedit plural forms") for details on plural forms.
 Another way is to install and use the [Codestyling Localization](http://wordpress.org/extend/plugins/codestyling-localization/ "Codestyling Localization") plugin.
-Please use the [contact form](http://blog.bokhorst.biz/contact/ "Marcel Bokhorst") to send me the new .po file.
+Please use [this contact form](http://forum.faircode.eu/contact/) to send me the new .po file.
 
 = U20 How can I setup one wall for all users? =
 
@@ -256,6 +255,8 @@ Assuming that you have configured and authorize the plugin, you can check this:
 
 Note that each WordPress user should authorize the plugin, unless you check the option *Share with all users on this site* in the Easy setup section.
 
+See also question U41.
+
 = U22 Where are the settings of the plugin? =
 
 In the WordPress menu *Tools*.
@@ -269,6 +270,10 @@ else
 	delete_option(c_al2fb_option_app_share);`
 
 This code resets the option *Share with all users on this site*.
+
+To reset the option *Required capability to use plugin*, you can add this:
+
+`update_option(c_al2fb_option_min_cap, 'edit_posts');`
 
 = U23 How can I use the shortcodes? =
 
@@ -318,7 +323,7 @@ All template tags:
 
 = U25 Can I add links to multiple walls? =
 
-This feature is only available in the [Pro version](http://al2fb.bokhorst.biz/) of the plugin.
+This feature is only available in the [Pro version](http://www.faircode.eu/al2fbpro/) of the plugin.
 
 = U26 Why doesn't the like button show all likes? Why are liker names not displayed? =
 
@@ -381,6 +386,8 @@ The only thing that can be changed is the Facebook application name after 'via'.
 
 From version 1.142 video is supported for [Viper's Video Quicktags](http://wordpress.org/extend/plugins/vipers-video-quicktags/).
 
+From version 1.149.1 you can set a video URL in the post editor.
+
 = U33 The like/send button doesn't look/behave as I want =
 
 The plugin just adds the standard Facebook like/send button.
@@ -410,7 +417,7 @@ If you want to use a featured image as link picture, see question U02 and U03.
 = U36 The privacy option is not working =
 
 You cannot add links with less privacy as specified in the Facebook application settings.
-To change this: Privacy Settings (right top triangle) > Apps and Websites > Edit Settings > Edit Settings (button) > Edit (link) > App activity privacy
+To change this: Privacy Settings (right top triangle) > Ads, Apps and Websites > Apps you use > Edit Settings (button) > Edit (link) > Posts on your behalf.
 The privacy option doesn't work if you use the option *Use links API instead of feed API*.
 
 = U37 I don't want my links grouped on the timeline =
@@ -418,7 +425,10 @@ The privacy option doesn't work if you use the option *Use links API instead of 
 Enabling the option *Use excerpt as message* will prevent grouping of links.
 If you don't write an excerpt the site title will be used as message.
 You can also enable the option *Use links API instead of feed API* (tab *Admin*).
-There is one known limitation, see the previous question.
+The links API does not work for groups (a Facebook bug).
+See the previous question for another limitation.
+
+**Due to [a Facebook bug](https://developers.facebook.com/bugs/226481434092661?browse=search_4f0185df08d385a20237575) the links API will not work for groups**
 
 = U38 I see HTML / shortcodes on Facebook =
 
@@ -432,17 +442,51 @@ because these options are known to be incompatible with some plugins.
 
 = U39 Why are comments are not imported? =
 
-First check if the setting *Integrate comments from Facebook* on the plugin settings tab *Comments* is enabled.
-It could be that your theme is incompatible with this feature. Switch back to the default theme (Twenty Ten/Eleven),
-wait at least 10 minutes (because of caching) and then refresh the post page where you expect comments.
-Please note that only comments on links added by the plugin are imported (the link is the anchor).
+First check if the setting *Integrate comments from Facebook* on the plugin settings tab *Comments* is enabled
+(each author should enable this individually).
+It could be that your theme is incompatible with this feature.
+Switch back to the default theme (Twenty Ten/Eleven),
+wait at least 10 minutes (because of caching) and then refresh the post page where you expect Facebook comments.
+Please note that only comments on links added by the plugin are imported (the link is the anchor) and only as native comments.
 Another potential problem are the privacy settings of the Facebook account that was used to comment on Facebook.
 Try writing a comment with another Facebook account.
+
+For posts with comments disabled or which are excluded based on the settings tab admin or in the post editor, no comments will be imported.
+To prevent problems with Facebook, only comments for young posts are imported (less than a week old).
+
+**Comments are not imported for the [Facebook comments plugin](https://developers.facebook.com/docs/reference/plugins/comments/)**
+
+See also question U27.
 
 = U40 I don't see pictures in the messages widget =
 
 The messages widget only imports status updates, not links with pictures.
 Consider using the activity feed instead.
+
+= U41 Added links do not show up in the news feed =
+
+Read [Your Average Facebook Post Only Reaches 12% Of Your Friends](http://techcrunch.com/2012/02/29/facebook-post-reach-16-friends/) to understand why.
+
+Added links are often not visible on your own timeline too.
+
+= U42 I want to edit/moderate imported Facebook comments =
+
+Enable these options:
+
+* *Integrate comments from Facebook* (plugin)
+* *Copy comments from Facebook to WordPress* (plugin)
+* *Do not execute filters for comments* (plugin)
+* *An administrator must always approve the comment* (WordPress)
+
+= U43 There is no share link (anymore) =
+
+Thank Facebook for this.
+You might be able to fix it by switching to the links API, but read about the limitations in question U37.
+
+= U44 The option 'Picture size sent to Facebook' does not work =
+
+Facebook only shows thumbnails for link pictures (see also question U27).
+This option exists only to solve aspect ratio problems in some case.
 
 **--- Security ---**
 
@@ -538,11 +582,10 @@ See [here](http://codex.wordpress.org/Changing_The_Site_URL) for how to change y
 = E07 I get 'This API call requires a valid app_id' =
 
 You could try to re-authorize to fix this, but it should not happen.
-Please send me the debug information, see the last question for instructions.
 
 = E08 I get 'An active access token must be used to query information about the current user' =
 
-If you keep getting this error after upgrading to the latest version, please report it and send me the debug information (see the last question for instructions).
+Should not happen.
 
 = E09 I get 'Invalid access token signature' =
 
@@ -573,7 +616,7 @@ cURL errors commonly reported:
 * Error 6: *Couldn’t resolve host*: the DNS of the hosting server may not work correct
 * Error 7: *Failed to connect() to host or proxy*: the hosting server is probably not allowing connections to the internet
 * Error 28: *Operation timeout*: hopefully temporarily no internet available on the hosting server, you can try to increase the setting *Facebook communication timeout*
-* Error 47: *Maximum redirects followed*: try enabling the option *Skip authorization check* (settings tab *Admin*)
+* Error 47: *Maximum redirects followed*: update to version 1.149+
 * Error 56: *Failure with receiving network data*: this error may be caused by using a CDN or caching solutions like CloudFare
 * Error 60: *Peer certificate cannot be authenticated with known CA certificates*: the security certificates on the hosting server could be missing or outdated, try enabling the option *Do not verify the peer's certificate* (settings tab *Admin*), but be aware this is less secure
 * Error 77: *Problem with reading the SSL CA cert*: the certificate files on the hosting server are not accessible or missing
@@ -599,12 +642,19 @@ Scroll down to the meta box *Custom fields* and delete the value *al2fb_facebook
 
 You can prevent this problem by deleting the link using the plugin.
 
-= E15 I get 'Error validating access token' =
+= E15a I get 'Error validating access token' =
 
 Most often this happen when you changed your Facebook password.
 The access token the plugin acquired during the authorization process may be revoked by Facebook.
 Maybe because there was a security problem with your Facebook application or account.
 Re-authorizing will probably solve this problem.
+
+= E15b I get 'Error invalidating access token' =
+
+This problem is probably caused by Facebook and applies at least to multi-sites using the same application for each site.
+A workaround might be to use a different application for each site.
+
+See [here](http://forum.faircode.eu/forums/topic/multi-user-site-facebook-group-error/) for progress on this problem.
 
 = E16 I get 'You failed to provide a valid list of administators' =
 
@@ -668,18 +718,36 @@ You should ask your hosting provider to install and configure cURL.
 
 = E25 I get 'This API call requires a valid app_id' =
 
-Try to authorize the plugin again.
+Double check the App ID in the Easy setup section and try to authorize the plugin again.
+
+= E26 I get 'Session has expired at unix time ...' =
+
+The access token has expired for some reason.
+This problem can probably be solved by authorizing the plugin again.
+
+= E27 I get a blank settings page / authorizing the plugin =
+
+It could be that your hosting server is blocking things (firewall, max. execution time, etc)
+or that your local firewall is blocking things or that your browser is incompatible.
+
+If you have access to your hosting server logs, check if there are error messages.
 
 **--- Support ---**
 
 = S01 Where can I ask questions, report bugs and request features? =
 
-You can open a topic in the [support forum](http://forum.bokhorst.biz/add-link-to-facebook/ "Marcel's weblog - forum").
+You can open a topic in the [support forum](http://forum.faircode.eu/).
 
 = S02 How can I send the debug information? =
 
-Go to the plugin page (via the *Tools* menu) and click on the link *Debug information* in the *Resources* panel.
-Optionally fill in your name and describe the problem as accurate as possible and press the *Send* button.
+**Only send debug information when asked for and always include a valid support forum topic link**
+
+Debug information not asked for and without valid support forum topic link will be ignored.
+
+Go to the plugin page (via the *Tools* menu) and click on the link *Debug information* in the right yellow *Resources* panel.
+Fill in your name, your e-mail address,
+a link to the [support forum](http://forum.faircode.eu/) where you reported the problem before
+and describe the problem as accurate as possible and press the *Send* button.
 
 == Screenshots ==
 
@@ -691,7 +759,7 @@ Optionally fill in your name and describe the problem as accurate as possible an
 == Changelog ==
 
 = Development version =
-* ...
+* Updated German (de\_DE) translation by [Wolfgang Tischer](http://www.literaturcafe.de "Wolfgang Tischer")
 
 Follow these steps to install the development version:
 
@@ -706,26 +774,38 @@ Follow these steps to install the development version:
 * Please report any problem you encounter
 * Reports that everything works are also appreciated :-)
 
-= 1.149 =
-* Bugfix: send user agent to Facebook
-* Improvement: removed option *Skip authorization check*
-* Improvement: no *... commented on ...* when post author comments (except when sharing is enabled by someone else)
-* Updated [Heise socialshareprivacy](http://www.heise.de/extras/socialshareprivacy/) to version 1.4
-
-= 1.148 =
-* Disabled pre-authorization check
-
-= 1.147 =
-* Bugfix: character encoding of imported comments
-* Bugfix: comment/like count
-* Improvement: increased link picture size from thumbnail to medium
-* New feature: disable sending pingbacks/trackbacks to Facebook (option)
-* New feature: disable pre-authorization check (option)
+= 1.157 =
+* New feature: option to not add video to Facebook
+* Improvement: more debug info
 * Updated FAQ
+* Updated CA certificates
 * Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
-* Updated German (de\_DE) translation by [Wolfgang Tischer](http://www.literaturcafe.de/ "Wolfgang Tischer")
 * Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
-* Added Lithuanian (lt\_LT) translation
+
+= 1.156 =
+* Bugfix: no like button etc, in feed
+* Bugfix: use selected image size for post meta box
+* Bugfix: user settings for multi-domain sites
+* Bugfix: authorize redirect for multi-domain sites
+* New feature: option to set like box height
+* New feature: option to disable refreshing access tokens
+* New feature: display wall name for added links in post editor
+* Improvement: og:locale for home page on multi-user sites
+* Improvement: og:description site title if no site description
+* Improvement: fixed a notice parsing video URL's
+* Improvement: more debug information
+* Added (Brazilian) Portuguese (pt\_BR/pt_PT) translation by [Claudio Lessa](http://www.claudiolessa.com/ "Claudio Lessa")
+* Updated Dutch (nl\_NL) and Flemish (nl\_BE) translations
+* Updated Norwegian (nb\_NO) translation by [Stein Ivar Johnsen](http://www.idyrøy.no/ "Stein Ivar Johnsen")
+
+= 1.155 =
+* Bugfix: caching of Facebook page information
+* Improvement: show all walls in easy setup section ([Pro version](http://www.faircode.eu/al2fbpro/) only)
+* Improvement: show all added links in post list ([Pro version](http://www.faircode.eu/al2fbpro/) only)
+* Improvement: show wall names in post list (instead of *Yes*)
+* Improvement: display zero number of comments/likes in post list
+* Improvement: setting user agent for *get_headers*
+* Improvement: more debug info
 
 = Older versions =
 * Deleted, because of maximum readme.txt size
@@ -733,18 +813,22 @@ Follow these steps to install the development version:
 
 == Upgrade Notice ==
 
-= 1.149 =
-One bugfix, two improvements, updated library
+= 1.157 =
+One new feature, one improvement, updated FAQ, translation updates
 
-= 1.148 =
-Disabled pre-authorization check
+= 1.156 =
+Four bugfixes, three new features, four improvements, new/updated translations
 
-= 1.147 =
-Two bug fixes, two new features, one improvement, updated FAQ & translations
+= 1.155 =
+One bugfix, six improvements
 
 == Setup guide ==
 
 **If you have more than one Facebook account, either logout completely or login to the correct account before you start.**
+
+**If you want to add links to a fan/community/business page, authorize the plugin with a personal account that owns to the page.**
+
+**If you have a multi-site installation, create a separate Facebook application for each site.**
 
 The setup of the plugin should be fairly self-explanatory.
 Basically there are five steps to follow:
@@ -756,7 +840,7 @@ Basically there are five steps to follow:
 	* See the [screenshots](http://wordpress.org/extend/plugins/add-link-to-facebook/screenshots/) if you cannot find it
 2. Create the Facebook application:
 	* Give it any display name you like (will appear as *via* below the added links)
-	* Fill in the red URL which the plugin indicates into the field *Website* (click the word) > *Site URL*
+	* Fill in the red URL which the plugin indicates into the field *Website with Facebook Login* (click the sentence) > *Site URL*
 	* See the [screenshot](http://wordpress.org/extend/plugins/add-link-to-facebook/screenshots/) if you cannot find it
 	* **Don't confuse this with the field *App Domain*, this field should be empty**
 	* Press the *Save Changes* button
@@ -774,7 +858,7 @@ If the standard procedure doesn't work, you can try [this page](https://register
 Setting up Facebook registration form / login button: see question U29 of [the FAQ](http://wordpress.org/extend/plugins/add-link-to-facebook/faq/ "FAQ")
 
 If you are having a problem, you can probably find the solution in [the FAQ](http://wordpress.org/extend/plugins/add-link-to-facebook/faq/ "FAQ").
-If you need help, don't hesitate to leave a message on the [support forum](http://forum.bokhorst.biz/add-link-to-facebook/ "Marcel's weblog - forum").
+If you need help, don't hesitate to leave a message on the [support forum](http://forum.faircode.eu/).
 
 == User Guide ==
 
@@ -817,7 +901,6 @@ The plugin offers several options to automatically select a picture:
 * Let Facebook select: this often doesn't work as you want to, because Facebook can select for example a header image
 * First image in the post: similar to first attached image, but the image doesn't have to be associated with the post
 * Avatar of author
-* Image from the [User Photo](http://wordpress.org/extend/plugins/user-photo/ "User Photo") plugin
 * Custom picture below: complete URL to a static picture of your choice
 
 Most users probably want to use *First image in the post*.
@@ -924,8 +1007,8 @@ Developing this plugin took many hours. A small donation as a token of your appr
 
 Please let me know if you think this plugin is good or bad by rating it.
 Checking *I have rated this plugin* will remove the rating reminder message.
-If you don't like the plugin, please [let me know why](http://blog.bokhorst.biz/contact/ "Marcel Bokhorst").
-If the plugin isn't working for you, [help is just one question away](http://forum.bokhorst.biz/add-link-to-facebook/ "Marcel's weblog - forum").
+If you don't like the plugin, please [let me know why](http://forum.faircode.eu/).
+If the plugin isn't working for you, [help is just one question away](http://forum.faircode.eu/).
 
 *Administrator options*
 
