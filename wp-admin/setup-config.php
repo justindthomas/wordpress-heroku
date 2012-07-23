@@ -49,6 +49,7 @@ wp_load_translations_early();
 
 // Check for the required PHP version and for the MySQL extension or a database drop-in.
 wp_check_php_mysql_versions();
+wp_unregister_GLOBALS();
 
 // Turn register_globals off.
 wp_unregister_GLOBALS();
